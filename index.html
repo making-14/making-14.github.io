@@ -162,7 +162,7 @@ function checkInput() {
     const inputField = document.getElementById("nameInput");
     
     if(verificationStep === 1) { // 姓名验证
-        if(input === "尹懿航") {
+        if(input === "尹懿航", "Bank", "BANK") {
             document.getElementById("text").innerHTML = "密码是lty的生日，".split('\n').map(line => `<div>${line}</div>`).join('');
             document.getElementById("subtext").innerHTML = "lty是什么，或许是老天爷，或许是领头羊，或许是连体衣...";
             verificationStep = 2;
@@ -185,7 +185,8 @@ function checkInput() {
 function handleWrongInput(input) {
     const jokeNames = ["王迎颢", "蓝蔚", "Making"];
     if(jokeNames.includes(input)) {
-        document.getElementById("text").innerHTML = "你简直在跟我开玩笑。<br>你真的以为自己很聪明，是么？".split('\n').map(line => `<div>${line}</div>`).join('');
+        document.getElementById("text").innerHTML = "你简直在跟我开玩笑。<br>你真的以为自己很聪明，是么？<br>（气笑）（气到昏厥）（急急急急）<br>我敢打赌，
+我是个白痴，<br>你也是。”".split('\n').map(line => `<div>${line}</div>`).join('');
     } else {
         document.getElementById("text").innerHTML = "我想我们是朋友！".split('\n').map(line => `<div>${line}</div>`).join('');
     }
