@@ -41,6 +41,24 @@
             from, to { background: transparent }
             50% { background: #fff }
         }
+        .scroll-box {
+            max-height: 60vh;
+            overflow-y: auto;
+            border: 1px solid #444;
+            padding: 15px;
+            margin: 20px 0;
+            background: #111;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .scroll-box p {
+            margin: 10px 0;
+            text-indent: 2em;
+        }
+        .highlight {
+            color: #ff69b4;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -53,11 +71,14 @@
         </div>
         <div id="inputArea" class="hidden">
             <input id="nameInput" placeholder="你的名字___">
-            <button onclick="checkName()">→</button>
+            <button onclick="checkInput()">→</button>
         </div>
+        <div id="secretText" class="hidden scroll-box"></div>
     </div>
 
 <script>
+let verificationStep = 0; // 0:未开始 1:姓名验证 2:密码验证
+
 const script = {
     step: 0,
     scenes: {
@@ -91,9 +112,114 @@ const script = {
     }
 };
 
-let currentScene = 'start';
-let isTyping = false;
+const secretContent = `
+“你知道【性别认同】吗？”
 
+那个男生笑着，看着你说。
+
+1
+2
+3
+4
+5
+6
+7
+
+技术
+计数
+程序
+数学
+运行
+宇宙
+预知
+寓言
+文明
+你。
+姓名。
+
+或许我干的都是些将来要后悔要完蛋的无用功，你根本就看不到也点不进来，我真的无所谓的。不过，我，我把这件事告诉过一些，人。
+
+他们并不会在意我我相信。
+
+无所谓的。
+
+那个男生看着你，不过是透过你的眼睛看到了他自己。
+
+「我自恋吗？我自卑吗？」
+
+「对不起。我连跟你聊天的勇气都没有。因为，跟我相处简直是浪费时间。」
+
+他点点头，无聊的剧情，快要睡着了啊。
+
+让我们再进行一次，时空穿梭，星际旅行。
+
+https://pan.quark.cn/s/bab5bfc04bd0
+`;
+
+// 修复核心函数
+function checkInput() {
+    const input = document.getElementById("nameInput").value.trim();
+    const inputField = document.getElementById("nameInput");
+    
+    if(verificationStep === 1) { // 姓名验证
+        if(input === "尹懿航") {
+            document.getElementById("text").innerHTML = "密码是lty的生日，".split('\n').map(line => `<div>${line}</div>`).join('');
+            document.getElementById("subtext").innerHTML = "lty是什么，或许是老天爷，或许是领头羊，或许是连体衣...";
+            verificationStep = 2;
+            inputField.placeholder = "输入密码___";
+            inputField.value = '';
+        } else {
+            handleWrongInput(input);
+        }
+    } else if(verificationStep === 2) { // 密码验证
+        if(input === "0712") {
+            document.getElementById("inputArea").classList.add("hidden");
+            showSecretContent();
+        } else {
+            document.getElementById("text").innerHTML = "密码错误，再想想？".split('\n').map(line => `<div>${line}</div>`).join('');
+            setTimeout(() => inputField.value = '', 1500);
+        }
+    }
+}
+
+function handleWrongInput(input) {
+    const jokeNames = ["王迎颢", "蓝蔚", "Making"];
+    if(jokeNames.includes(input)) {
+        document.getElementById("text").innerHTML = "你简直在跟我开玩笑。<br>你真的以为自己很聪明，是么？".split('\n').map(line => `<div>${line}</div>`).join('');
+    } else {
+        document.getElementById("text").innerHTML = "我想我们是朋友！".split('\n').map(line => `<div>${line}</div>`).join('');
+    }
+    setTimeout(() => {
+        document.getElementById("nameInput").value = '';
+    }, 2000);
+}
+
+function showSecretContent() {
+    const secretDiv = document.getElementById("secretText");
+    secretDiv.classList.remove("hidden");
+    secretDiv.innerHTML = secretContent.split('\n').map(line => {
+        if(line.match(/^\d+$/)) return `<p class="highlight">${line}</p>`;
+        return line ? `<p>${line}</p>` : '<br>';
+    }).join('');
+}
+
+// 确保场景切换正确
+function select(choice) {
+    document.getElementById("options").classList.add("hidden");
+    currentScene = choice;
+    script.step = 0;
+    
+    if(choice === 'yes') {
+        proceedScene().then(() => {
+            verificationStep = 1;
+            document.getElementById("inputArea").classList.remove("hidden");
+        });
+    } else {
+        playNoScene();
+    }
+}
+
+// 保留原有核心函数
 async function typeWriter(element, text, speed = 50) {
     return new Promise(resolve => {
         let i = 0;
@@ -104,7 +230,7 @@ async function typeWriter(element, text, speed = 50) {
                 i++;
             } else {
                 clearInterval(timer);
-                element.innerHTML = text; // 移除光标
+                element.innerHTML = text;
                 resolve();
             }
         }, speed);
@@ -113,11 +239,9 @@ async function typeWriter(element, text, speed = 50) {
 
 async function showTextWithEffect(textElement, subElement, text, sub = '') {
     isTyping = true;
-    
     textElement.innerHTML = '';
     subElement.innerHTML = '';
     
-    // 显示主文本
     const textLines = text.split('\n');
     for(let line of textLines) {
         const lineDiv = document.createElement('div');
@@ -125,13 +249,25 @@ async function showTextWithEffect(textElement, subElement, text, sub = '') {
         await typeWriter(lineDiv, line);
     }
     
-    // 显示子文本
-    if(sub) {
-        await typeWriter(subElement, sub, 30);
-    }
-    
+    if(sub) await typeWriter(subElement, sub, 30);
     isTyping = false;
 }
+
+// 初始化
+document.addEventListener('DOMContentLoaded', async () => {
+    const firstStep = script.scenes.start[0];
+    await showTextWithEffect(
+        document.getElementById("text"),
+        document.getElementById("subtext"),
+        firstStep.text,
+        firstStep.sub
+    );
+    script.step = 1;
+});
+
+// 保留其他必要函数
+let currentScene = 'start';
+let isTyping = false;
 
 async function proceedScene() {
     const scene = script.scenes[currentScene];
@@ -179,45 +315,6 @@ async function proceedScene() {
     }
 }
 
-function select(choice) {
-    document.getElementById("options").classList.add("hidden");
-    document.getElementById("inputArea").classList.add("hidden");
-    currentScene = choice;
-    script.step = 0;
-    
-    if(choice === 'yes') {
-        proceedScene();
-    } else {
-        playNoScene();
-    }
-}
-
-function checkName() {
-    const name = document.getElementById("nameInput").value.trim();
-    const validNames = ["尹懿航", "Bank"];
-    const jokeNames = ["王迎颢", "蓝蔚", "Making"];
-    
-    if(validNames.includes(name)) {
-        document.getElementById("text").innerHTML = "密码是lty的生日，".split('\n').map(line => `<div>${line}</div>`).join('');
-        document.getElementById("subtext").innerHTML = "lty是什么，或许是老天爷，或许是领头羊，或许是连体衣...";
-        setTimeout(() => {
-            window.location.href = 'https://pan.baidu.com/s/1yCN4K6-UHbtGLWhkOFv_sw';
-        }, 3000);
-    } else if(jokeNames.includes(name)) {
-        document.getElementById("text").innerHTML = "你简直在跟我开玩笑。<br>你真的以为自己很聪明，是么？<br>（气笑）（气到昏厥）（急急急急）<br>我敢打赌，<br>我是个白痴，<br>你也是。".split('\n').map(line => `<div>${line}</div>`).join('');
-        setTimeout(() => {
-            document.getElementById("inputArea").classList.add("hidden");
-            document.getElementById("nameInput").value = '';
-            document.getElementById("inputArea").classList.remove("hidden");
-        }, 3000);
-    } else {
-        document.getElementById("text").innerHTML = "我想我们是朋友！".split('\n').map(line => `<div>${line}</div>`).join('');
-        setTimeout(() => {
-            document.getElementById("nameInput").value = '';
-        }, 2000);
-    }
-}
-
 async function playNoScene() {
     const texts = script.scenes.no;
     let index = 0;
@@ -235,25 +332,9 @@ async function playNoScene() {
     try { window.close(); } catch(e) { location.reload(); }
 }
 
-// 点击处理（仅允许在非输入状态下点击继续）
 document.body.addEventListener('click', async function() {
     if(!isTyping && !document.getElementById("inputArea").classList.contains('hidden')) return;
-    
-    if(!isTyping) {
-        await proceedScene();
-    }
-});
-
-// 初始化
-document.addEventListener('DOMContentLoaded', async () => {
-    const firstStep = script.scenes.start[0];
-    await showTextWithEffect(
-        document.getElementById("text"),
-        document.getElementById("subtext"),
-        firstStep.text,
-        firstStep.sub
-    );
-    script.step = 1;
+    if(!isTyping) await proceedScene();
 });
 </script>
 </body>
