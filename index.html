@@ -156,31 +156,40 @@ const secretContent = `
 https://pan.quark.cn/s/bab5bfc04bd0
 `;
 
-// 修复核心函数
+// ============== 仅修改这部分 ==============
 function checkInput() {
     const input = document.getElementById("nameInput").value.trim();
-    const inputField = document.getElementById("nameInput");
     
-    if(verificationStep === 1) { // 姓名验证
-        if(input === "尹懿航", "Bank", "BANK") {
+    if(verificationStep === 1) { 
+        // 修复1：正确使用includes方法
+        // 修复2：添加大小写不敏感匹配
+        const validNames = ["尹懿航", "Bank", "BANK"];
+        const normalizedInput = input.toLowerCase();
+        
+        if(validNames.some(name => name.toLowerCase() === normalizedInput)) {
             document.getElementById("text").innerHTML = "密码是lty的生日，".split('\n').map(line => `<div>${line}</div>`).join('');
             document.getElementById("subtext").innerHTML = "lty是什么，或许是老天爷，或许是领头羊，或许是连体衣...";
             verificationStep = 2;
-            inputField.placeholder = "输入密码___";
-            inputField.value = '';
+            document.getElementById("nameInput").placeholder = "输入密码___";
+            document.getElementById("nameInput").value = '';
         } else {
             handleWrongInput(input);
         }
-    } else if(verificationStep === 2) { // 密码验证
+    } 
+    // 保持后续密码验证逻辑不变
+    else if(verificationStep === 2) { 
         if(input === "0712") {
             document.getElementById("inputArea").classList.add("hidden");
             showSecretContent();
         } else {
             document.getElementById("text").innerHTML = "密码错误，再想想？".split('\n').map(line => `<div>${line}</div>`).join('');
-            setTimeout(() => inputField.value = '', 1500);
+            setTimeout(() => document.getElementById("nameInput").value = '', 1500);
         }
     }
 }
+// ============== 修改结束 ==============
+
+// 保持其他所有函数和HTML结构完全不变！
 
 function handleWrongInput(input) {
     const jokeNames = ["王迎颢", "蓝蔚", "Making"];
