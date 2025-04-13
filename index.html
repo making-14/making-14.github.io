@@ -185,8 +185,7 @@ function checkInput() {
 function handleWrongInput(input) {
     const jokeNames = ["王迎颢", "蓝蔚", "Making"];
     if(jokeNames.includes(input)) {
-        document.getElementById("text").innerHTML = "你简直在跟我开玩笑。<br>你真的以为自己很聪明，是么？<br>（气笑）（气到昏厥）（急急急急）<br>我敢打赌，
-我是个白痴，<br>你也是。”".split('\n').map(line => `<div>${line}</div>`).join('');
+        document.getElementById("text").innerHTML = "你简直在跟我开玩笑。<br>你真的以为自己很聪明，是么？<br>（气笑）（气到昏厥）（急急急急）<br>我敢打赌，我是个白痴，<br>你也是。”".split('\n').map(line => `<div>${line}</div>`).join('');
     } else {
         document.getElementById("text").innerHTML = "我想我们是朋友！".split('\n').map(line => `<div>${line}</div>`).join('');
     }
